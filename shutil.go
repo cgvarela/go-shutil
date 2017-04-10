@@ -100,7 +100,7 @@ func CopyFile(src, dst string, followSymlinks bool) error {
 
 	// If we are a symlink, follow it
 	if IsSymlink(srcStat) {
-		src, err = os.Readlink(src)
+		src, err = filepath.EvalSymlinks(src)
 		if err != nil {
 			return err
 		}
@@ -285,7 +285,7 @@ func CopyTree(src, dst string, options *CopyTreeOptions) error {
 
 		// Deal with symlinks
 		if IsSymlink(entryFileInfo) {
-			linkTo, err := os.Readlink(srcPath)
+			linkTo, err := filepath.EvalSymlinks(srcPath)
 			if err != nil {
 				return err
 			}
@@ -298,7 +298,7 @@ func CopyTree(src, dst string, options *CopyTreeOptions) error {
 				if os.IsNotExist(err) && options.IgnoreDanglingSymlinks {
 					continue
 				}
-				_, err = options.CopyFunction(srcPath, dstPath, false)
+				_, err = options.CopyFunction(linkTo, dstPath, false)
 				if err != nil {
 					return err
 				}
